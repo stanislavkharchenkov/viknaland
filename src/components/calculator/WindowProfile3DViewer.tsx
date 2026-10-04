@@ -1155,13 +1155,37 @@ export default function WindowProfile3DViewer({ initialSystem = 'b70' }: Props) 
     viewModeRef.current = viewMode;
   }, [viewMode]);
 
+  // Адаптивне центрування та коригування FOV під мобільні телефони та десктопи
+  const applyCameraFraming = useCallback((targetCam: THREE.PerspectiveCamera, widthPx: number, heightPx: number) => {
+    const aspect = widthPx / Math.max(1, heightPx);
+    targetCam.aspect = aspect;
+
+    if (aspect < 1.05) {
+      // Портретний / мобільний екран:
+      // Розширюємо FOV пропорційно, щоб горизонтальний розріз профілю НЕ обрізався по краях
+      const targetHFovRad = 2 * Math.atan(Math.tan((28 * Math.PI) / 360) * 1.25);
+      targetCam.fov = (2 * Math.atan(Math.tan(targetHFovRad / 2) / aspect) * 180) / Math.PI;
+
+      // Центруємо 3D-модель рівно посередині екрана смартфона
+      const dist = 32.5 * (1.0 + (1.0 - Math.min(1.0, aspect)) * 0.35);
+      const dir = new THREE.Vector3(-10.5, 5.5, 26).normalize();
+      targetCam.position.copy(dir.multiplyScalar(dist));
+      targetCam.lookAt(0, 0.25, 0);
+    } else {
+      // Класичний десктопний широкий екран
+      targetCam.fov = 28;
+      targetCam.position.set(-14, 7, 27);
+      targetCam.lookAt(0.3, 0.2, 0);
+    }
+    targetCam.updateProjectionMatrix();
+  }, []);
+
   // Функція скидання ракурсу точно до еталонного заводського фото
   const resetCamera = useCallback(() => {
-    if (!rootRef.current || !cameraRef.current) return;
+    if (!rootRef.current || !cameraRef.current || !mountRef.current) return;
     rootRef.current.rotation.set(0.14, 0.48, 0);
-    cameraRef.current.position.set(-14, 7, 27);
-    cameraRef.current.lookAt(0.3, 0.2, 0);
-  }, []);
+    applyCameraFraming(cameraRef.current, mountRef.current.clientWidth, mountRef.current.clientHeight);
+  }, [applyCameraFraming]);
 
   // ── 1. Ініціалізація сцени Three.js ──
   useEffect(() => {
@@ -1169,15 +1193,14 @@ export default function WindowProfile3DViewer({ initialSystem = 'b70' }: Props) 
     if (!el) return;
 
     const w = el.clientWidth;
-    const h = el.clientHeight || 600;
+    const h = el.clientHeight || 460;
 
     const scene = new THREE.Scene();
     sceneRef.current = scene;
 
-    // Перспективна камера: вид спереду-зліва-зверху на зріз камер та лицьову сторону
+    // Перспективна камера з адаптивним масштабуванням під мобільні
     const cam = new THREE.PerspectiveCamera(28, w / h, 0.1, 500);
-    cam.position.set(-14, 7, 27);
-    cam.lookAt(0.3, 0.2, 0);
+    applyCameraFraming(cam, w, h);
     cameraRef.current = cam;
 
     const renderer = new THREE.WebGLRenderer({
@@ -1408,9 +1431,8 @@ export default function WindowProfile3DViewer({ initialSystem = 'b70' }: Props) 
 
     const onResize = () => {
       const nw = el.clientWidth;
-      const nh = el.clientHeight || 600;
-      cam.aspect = nw / nh;
-      cam.updateProjectionMatrix();
+      const nh = el.clientHeight || 460;
+      applyCameraFraming(cam, nw, nh);
       renderer.setSize(nw, nh);
     };
     window.addEventListener('resize', onResize);
@@ -1551,20 +1573,20 @@ export default function WindowProfile3DViewer({ initialSystem = 'b70' }: Props) 
           <div className="relative">
             <div
               ref={mountRef}
-              className="w-full h-[420px] sm:h-[580px] lg:h-[680px] rounded-2xl bg-gradient-to-br from-[#061124] via-[#091D42] to-[#0D2452] border border-slate-700/80 shadow-inner relative overflow-hidden cursor-grab active:cursor-grabbing"
+              className="w-full h-[460px] sm:h-[580px] lg:h-[680px] rounded-2xl bg-gradient-to-br from-[#061124] via-[#091D42] to-[#0D2452] border border-slate-700/80 shadow-inner relative overflow-hidden cursor-grab active:cursor-grabbing"
             />
 
             {/* Кнопки керування */}
-            <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 z-10">
+            <div className="absolute top-2.5 left-2.5 flex flex-wrap gap-1 sm:gap-1.5 z-10 max-w-[calc(100%-80px)]">
               <button
                 onClick={() => setHighlightSteel((v) => !v)}
-                className={`px-2.5 py-1.5 rounded-lg text-[10px] font-bold backdrop-blur-md border transition-all duration-200 cursor-pointer ${
+                className={`px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg text-[9px] sm:text-[10px] font-bold backdrop-blur-md border transition-all duration-200 cursor-pointer ${
                   highlightSteel
                     ? 'bg-[#0284C7] text-white border-[#0284C7]/60 shadow-md shadow-[#0284C7]/30'
                     : 'bg-black/50 text-white/80 border-white/10 hover:bg-black/70'
                 }`}
               >
-                <span className="flex items-center gap-1.5">
+                <span className="flex items-center gap-1 sm:gap-1.5">
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/></svg>
                   <span>Сталь {spec.steelThk}мм</span>
                   {highlightSteel && <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />}
@@ -1572,23 +1594,23 @@ export default function WindowProfile3DViewer({ initialSystem = 'b70' }: Props) 
               </button>
               <button
                 onClick={() => setViewMode((v) => (v === 'normal' ? 'xray' : 'normal'))}
-                className={`px-2.5 py-1.5 rounded-lg text-[10px] font-bold backdrop-blur-md border transition-all duration-200 cursor-pointer ${
+                className={`px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg text-[9px] sm:text-[10px] font-bold backdrop-blur-md border transition-all duration-200 cursor-pointer ${
                   viewMode === 'xray'
                     ? 'bg-[#0284C7] text-white border-[#0284C7]/60 shadow-md shadow-[#0284C7]/30'
                     : 'bg-black/50 text-white/80 border-white/10 hover:bg-black/70'
                 }`}
               >
-                <span className="flex items-center gap-1.5">
+                <span className="flex items-center gap-1 sm:gap-1.5">
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20M2 12h20"/></svg>
                   <span>Рентген</span>
                 </span>
               </button>
               <button
                 onClick={resetCamera}
-                className="px-2.5 py-1.5 rounded-lg text-[10px] font-bold backdrop-blur-md border bg-black/50 text-white/80 border-white/10 hover:bg-black/70 transition-all duration-200 cursor-pointer"
+                className="px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg text-[9px] sm:text-[10px] font-bold backdrop-blur-md border bg-black/50 text-white/80 border-white/10 hover:bg-black/70 transition-all duration-200 cursor-pointer"
                 title="Повернути заводський ракурс фото"
               >
-                <span className="flex items-center gap-1.5">
+                <span className="flex items-center gap-1 sm:gap-1.5">
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
                   <span>Ракурс фото</span>
                 </span>
@@ -1596,7 +1618,7 @@ export default function WindowProfile3DViewer({ initialSystem = 'b70' }: Props) 
             </div>
 
             {/* Інформаційні мітки */}
-            <div className="absolute top-3 right-3 hidden sm:flex flex-col gap-1 z-10 pointer-events-none">
+            <div className="absolute top-2.5 right-2.5 hidden sm:flex flex-col gap-1 z-10 pointer-events-none">
               <span className="px-2 py-0.5 rounded bg-black/50 backdrop-blur-md border border-white/10 text-[9px] text-[#38BDF8] font-mono">
                 Склопакет: {spec.glassFormula}
               </span>
@@ -1606,15 +1628,15 @@ export default function WindowProfile3DViewer({ initialSystem = 'b70' }: Props) 
             </div>
 
             {/* Watermark VIKNALAND 3D */}
-            <div className="absolute bottom-3 right-4 z-10 pointer-events-none select-none">
-              <span className="text-[11px] font-mono font-bold tracking-widest text-[#38BDF8]/40 uppercase drop-shadow-sm">
+            <div className="absolute bottom-2.5 right-3 z-10 pointer-events-none select-none">
+              <span className="text-[10px] sm:text-[11px] font-mono font-bold tracking-widest text-[#38BDF8]/40 uppercase drop-shadow-sm">
                 VIKNALAND 3D
               </span>
             </div>
 
             {/* Нижня підказка на полотні (компактна, без перекриття моделі) */}
-            <div className="absolute bottom-3 left-3 z-10 pointer-events-none">
-              <span className="px-2.5 py-1 rounded-lg bg-black/60 backdrop-blur-md border border-white/10 text-[9px] text-sky-300 font-medium">
+            <div className="absolute bottom-2.5 left-2.5 z-10 pointer-events-none max-w-[calc(100%-110px)]">
+              <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg bg-black/60 backdrop-blur-md border border-white/10 text-[8.5px] sm:text-[9px] text-sky-300 font-medium truncate block">
                 {selectedComponent ? `Виділено: ${PROFILE_COMPONENTS[selectedComponent]?.shortTag}` : 'Клікніть деталь для фокусу'}
               </span>
             </div>
