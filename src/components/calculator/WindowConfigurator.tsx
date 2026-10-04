@@ -185,9 +185,9 @@ export default function WindowConfigurator() {
         </div>
 
         {/* Головна сітка: Ліворуч — Візуалізація + Розміри, Праворуч — Всі параметри */}
-        <div className="grid lg:grid-cols-12 gap-8 items-start">
+        <div className="grid lg:grid-cols-12 gap-6 lg:gap-8 items-start">
           {/* Ліва колонка: Інтерактивний архітектурний візуалізатор (5 колонок) */}
-          <div className="lg:col-span-5 bg-slate-50 rounded-3xl p-5 sm:p-7 border border-slate-200/90 shadow-xl sticky top-20">
+          <div className="lg:col-span-5 bg-slate-50 rounded-3xl p-3.5 sm:p-6 lg:p-7 border border-slate-200/90 shadow-xl lg:sticky lg:top-20">
             {/* Інтерактивний архітектурний візуалізатор вікон VIKNALAND */}
             <WindowCanvasVisualizer
               windowType={windowType}
@@ -219,7 +219,7 @@ export default function WindowConfigurator() {
                 <span>Типові серії будинків:</span>
                 <span className="text-slate-400 font-normal">в 1 клік</span>
               </div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
                 {sizePresets.map((preset, idx) => {
                   const isCurrent = width === preset.w && height === preset.h;
                   return (

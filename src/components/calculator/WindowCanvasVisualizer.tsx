@@ -199,8 +199,8 @@ export default function WindowCanvasVisualizer({
   // Розрахунок фізично пропорційних габаритів у вʼюпорті
   const dimensions = useMemo(() => {
     const aspectRatio = width / height;
-    const maxBoxW = 400;
-    const maxBoxH = 290;
+    const maxBoxW = 340;
+    const maxBoxH = 250;
 
     let renderW = maxBoxW;
     let renderH = renderW / aspectRatio;
@@ -210,8 +210,8 @@ export default function WindowCanvasVisualizer({
       renderW = renderH * aspectRatio;
     }
 
-    renderW = Math.max(180, Math.min(maxBoxW, renderW));
-    renderH = Math.max(160, Math.min(maxBoxH, renderH));
+    renderW = Math.max(160, Math.min(maxBoxW, renderW));
+    renderH = Math.max(140, Math.min(maxBoxH, renderH));
 
     return {
       boxWidth: Math.round(renderW),
@@ -424,14 +424,13 @@ export default function WindowCanvasVisualizer({
 
       {/* ── ГОЛОВНИЙ ВʼЮПОРТ ВІКНА ── */}
       <div
-        className={`relative w-full rounded-2xl border transition-all duration-500 overflow-hidden flex flex-col justify-between p-3.5 ${
+        className={`relative w-full rounded-2xl border transition-all duration-500 overflow-hidden flex flex-col justify-between p-2.5 sm:p-3.5 min-h-[350px] sm:min-h-[390px] ${
           viewMode === 'cad'
             ? 'bg-[#071120] border-sky-900/60 [background-image:linear-gradient(to_right,#1E293B35_1px,transparent_1px),linear-gradient(to_bottom,#1E293B35_1px,transparent_1px)] [background-size:16px_16px]'
             : viewMode === 'thermal'
             ? 'bg-[#060D1A] border-indigo-900/70 [background-image:radial-gradient(#1E293B60_1px,transparent_1px)] [background-size:14px_14px]'
             : 'bg-gradient-to-b from-[#0F1B2E] via-[#162740] to-[#1C3354] border-slate-700/80 shadow-2xl'
         }`}
-        style={{ minHeight: '390px' }}
       >
         {/* Верхній інформаційний рядок */}
         <div className="flex items-center justify-between text-[11px] font-mono font-bold z-20">
@@ -1217,8 +1216,8 @@ export default function WindowCanvasVisualizer({
         )}
 
         {/* ── НИЖНЯ ПАНЕЛЬ: СПЕЦИФІКАЦІЯ КОНСТРУКЦІЇ ── */}
-        <div className="w-full flex items-center justify-between text-[10px] font-mono text-white/80 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 z-10">
-          <div className="flex items-center gap-2">
+        <div className="w-full flex flex-wrap items-center justify-between gap-1.5 text-[9px] sm:text-[10px] font-mono text-white/80 bg-black/60 backdrop-blur-md px-2.5 sm:px-3 py-1.5 rounded-xl sm:rounded-full border border-white/10 z-10">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <span className="text-[#38BDF8] font-bold">
               {dimensions.areaM2} м²
             </span>
@@ -1226,12 +1225,12 @@ export default function WindowCanvasVisualizer({
             <span className="text-slate-300">~{dimensions.approxWeightKg} кг</span>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-white/40 uppercase tracking-widest text-[9px]">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <span className="text-white/50 uppercase tracking-widest text-[8px] sm:text-[9px]">
               {profileConfig.name}
             </span>
             <span className="text-white/30">•</span>
-            <span className="text-[#FE5B36] font-bold">{hardwareConfig.name}</span>
+            <span className="text-[#FE5B36] font-bold truncate max-w-[120px] sm:max-w-none">{hardwareConfig.name}</span>
           </div>
         </div>
       </div>
