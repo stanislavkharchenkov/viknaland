@@ -1472,7 +1472,7 @@ export default function WindowProfile3DViewer({ initialSystem = 'b70' }: Props) 
   const spec = SPECS[activeProfile];
 
   return (
-    <div className="bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-7 lg:p-8 shadow-xl relative overflow-hidden text-slate-900">
+    <div className="bg-white border border-slate-200/90 rounded-3xl p-3.5 sm:p-7 lg:p-8 shadow-xl relative overflow-hidden text-slate-900">
       <div className="absolute inset-0 bg-[radial-gradient(#00000006_1px,transparent_1px)] [background-size:20px_20px] pointer-events-none" />
 
       {/* ── Заголовок та перемикач систем ── */}
@@ -1490,7 +1490,7 @@ export default function WindowProfile3DViewer({ initialSystem = 'b70' }: Props) 
         </div>
 
         {/* Таби систем */}
-        <div className="flex gap-1.5 shrink-0">
+        <div className="flex gap-1.5 shrink-0 overflow-x-auto pb-1 scrollbar-none">
           {(['b58', 'b70', 'v85'] as ProfileSystem[]).map((sys) => {
             const isAct = activeProfile === sys;
             const s = SPECS[sys];
@@ -1551,7 +1551,7 @@ export default function WindowProfile3DViewer({ initialSystem = 'b70' }: Props) 
           <div className="relative">
             <div
               ref={mountRef}
-              className="w-full h-[540px] sm:h-[620px] lg:h-[680px] rounded-2xl bg-gradient-to-br from-[#061124] via-[#091D42] to-[#0D2452] border border-slate-700/80 shadow-inner relative overflow-hidden cursor-grab active:cursor-grabbing"
+              className="w-full h-[420px] sm:h-[580px] lg:h-[680px] rounded-2xl bg-gradient-to-br from-[#061124] via-[#091D42] to-[#0D2452] border border-slate-700/80 shadow-inner relative overflow-hidden cursor-grab active:cursor-grabbing"
             />
 
             {/* Кнопки керування */}
