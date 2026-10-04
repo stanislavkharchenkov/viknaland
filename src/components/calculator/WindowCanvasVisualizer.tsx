@@ -333,55 +333,56 @@ export default function WindowCanvasVisualizer({
 
   return (
     <div className="w-full select-none">
-      {/* ── ВЕРХНЯ ПАНЕЛЬ: ВИБІР РЕЖИМУ ТА СТАНУ СТУЛОК ── */}
-      <div className="flex items-center justify-between gap-2 mb-3">
-        {/* Режими візуалізації */}
-        <div className="flex bg-slate-200/90 p-1 rounded-xl border border-slate-300 text-[11px] font-bold">
+      {/* ── ВЕРХНЯ ПАНЕЛЬ: РЕЖИМИ ТА ВІДКРИВАННЯ СТУЛОК (100% АДАПТИВНІСТЬ БЕЗ ВИСТУПАННЯ) ── */}
+      <div className="flex flex-col gap-2 mb-3 w-full">
+        {/* Рядок 1: Режими візуалізації */}
+        <div className="grid grid-cols-3 bg-slate-200/90 p-1 rounded-xl border border-slate-300 text-[10px] sm:text-[11px] font-bold w-full">
           <button
             type="button"
             onClick={() => setViewMode('studio')}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+            className={`flex items-center justify-center gap-1 sm:gap-1.5 py-1.5 px-1 sm:px-2 rounded-lg transition-all cursor-pointer ${
               viewMode === 'studio'
                 ? 'bg-white text-slate-900 shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <StudioIcon size={13} />
+            <StudioIcon size={12} />
             <span>Студія</span>
           </button>
           <button
             type="button"
             onClick={() => setViewMode('cad')}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+            className={`flex items-center justify-center gap-1 sm:gap-1.5 py-1.5 px-1 sm:px-2 rounded-lg transition-all cursor-pointer ${
               viewMode === 'cad'
                 ? 'bg-[#0F2B5C] text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <DraftingIcon size={13} />
-            <span>CAD-креслення</span>
+            <DraftingIcon size={12} />
+            <span className="hidden sm:inline">CAD-креслення</span>
+            <span className="sm:hidden">CAD</span>
           </button>
           <button
             type="button"
             onClick={() => setViewMode('thermal')}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+            className={`flex items-center justify-center gap-1 sm:gap-1.5 py-1.5 px-1 sm:px-2 rounded-lg transition-all cursor-pointer ${
               viewMode === 'thermal'
                 ? 'bg-gradient-to-r from-cyan-600 to-indigo-600 text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <ThermalIcon size={13} />
+            <ThermalIcon size={12} />
             <span>Тепловізор</span>
           </button>
         </div>
 
-        {/* Кнопки перемикання стулок */}
+        {/* Рядок 2: Стан стулок */}
         {canOpen ? (
-          <div className="flex bg-slate-200/90 p-1 rounded-xl border border-slate-300 text-[11px] font-bold">
+          <div className="grid grid-cols-3 bg-slate-200/90 p-1 rounded-xl border border-slate-300 text-[10px] sm:text-[11px] font-bold w-full">
             <button
               type="button"
               onClick={() => setSashState('closed')}
-              className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
+              className={`flex items-center justify-center py-1.5 px-1 sm:px-2 rounded-lg transition-all cursor-pointer text-center ${
                 sashState === 'closed'
                   ? 'bg-[#0F2B5C] text-white shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
@@ -392,7 +393,7 @@ export default function WindowCanvasVisualizer({
             <button
               type="button"
               onClick={() => setSashState('open')}
-              className={`flex items-center gap-1 px-2 py-1 rounded-lg transition-all cursor-pointer ${
+              className={`flex items-center justify-center gap-1 py-1.5 px-1 sm:px-2 rounded-lg transition-all cursor-pointer ${
                 sashState === 'open'
                   ? 'bg-[#FE5B36] text-white shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
@@ -404,7 +405,7 @@ export default function WindowCanvasVisualizer({
             <button
               type="button"
               onClick={() => setSashState('tilt')}
-              className={`flex items-center gap-1 px-2 py-1 rounded-lg transition-all cursor-pointer ${
+              className={`flex items-center justify-center gap-1 py-1.5 px-1 sm:px-2 rounded-lg transition-all cursor-pointer ${
                 sashState === 'tilt'
                   ? 'bg-[#0284C7] text-white shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
@@ -415,9 +416,9 @@ export default function WindowCanvasVisualizer({
             </button>
           </div>
         ) : (
-          <span className="text-[10px] font-bold text-slate-500 bg-slate-200/70 px-2.5 py-1 rounded-lg border border-slate-300/80">
-            Глухе скління
-          </span>
+          <div className="text-[10px] font-bold text-slate-500 bg-slate-200/70 py-1.5 px-2.5 rounded-xl border border-slate-300/80 text-center w-full">
+            Глухе скління (без відкривання)
+          </div>
         )}
       </div>
 
