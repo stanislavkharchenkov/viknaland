@@ -16,6 +16,29 @@ export default function Header() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  // Lock scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
+
+  // Close on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileMenuOpen(false);
+    };
+    if (mobileMenuOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [mobileMenuOpen]);
+
   return (
     <>
       {/* Верхній інформаційний рядок - компактний */}
@@ -138,80 +161,149 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Мобільне меню */}
-        {mobileMenuOpen && (
-          <div className="lg:hidden bg-white border-t border-slate-200 px-4 py-3 space-y-2.5 shadow-xl">
-            <Link
-              href="#view3d"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block text-xs font-bold uppercase tracking-wider text-slate-800 py-1 hover:text-[#FE5B36]"
-            >
-              3D Розріз профілю
-            </Link>
-            <Link
-              href="#configurator"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block text-xs font-bold uppercase tracking-wider text-slate-800 py-1 hover:text-[#FE5B36]"
-            >
-              Калькулятор онлайн
-            </Link>
-            <Link
-              href="#technologies"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block text-xs font-bold uppercase tracking-wider text-slate-800 py-1 hover:text-[#FE5B36]"
-            >
-              Технології
-            </Link>
-            <Link
-              href="#profiles"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block text-xs font-bold uppercase tracking-wider text-slate-800 py-1 hover:text-[#FE5B36]"
-            >
-              Профільні системи
-            </Link>
-            <Link
-              href="#evidnovlennya"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block text-xs font-bold uppercase tracking-wider text-[#FE5B36] py-1"
-            >
-              єВідновлення
-            </Link>
-            <Link
-              href="#advantages"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block text-xs font-bold uppercase tracking-wider text-slate-800 py-1 hover:text-[#FE5B36]"
-            >
-              Переваги заводу
-            </Link>
-            <Link
-              href="#portfolio"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block text-xs font-bold uppercase tracking-wider text-slate-800 py-1 hover:text-[#FE5B36]"
-            >
-              Реалізовані обʼєкти
-            </Link>
-            <Link
-              href="#blog"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block text-xs font-bold uppercase tracking-wider text-slate-800 py-1 hover:text-[#FE5B36]"
-            >
-              Блог: Будова вікон
-            </Link>
-            <Link
-              href="#faq"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block text-xs font-bold uppercase tracking-wider text-slate-800 py-1 hover:text-[#FE5B36]"
-            >
-              FAQ
-            </Link>
-            <div className="pt-2 border-t border-slate-200">
-              <a href="tel:0800303030" className="text-base font-extrabold text-slate-900 block font-mono">
-                0 800 30 30 30
-              </a>
-            </div>
-          </div>
-        )}
       </header>
+
+      {/* Затемнення фону */}
+      <div
+        className={`fixed inset-0 bg-black/60 backdrop-blur-xs z-50 transition-opacity duration-300 lg:hidden ${
+          mobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={() => setMobileMenuOpen(false)}
+        aria-hidden="true"
+      />
+
+      {/* Мобільне виїзне меню (Slide-out Drawer) */}
+      <aside
+        className={`fixed top-0 right-0 bottom-0 w-[85%] max-w-sm bg-white text-slate-800 z-50 shadow-2xl flex flex-col justify-between transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] transform-gpu lg:hidden border-l border-slate-200 ${
+          mobileMenuOpen ? 'translate-x-0' : 'translate-x-full pointer-events-none'
+        }`}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Мобільне меню"
+      >
+        {/* Шапка виїзного меню */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200">
+          <Link
+            href="/"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center gap-1.5"
+          >
+            <span className="text-lg font-black tracking-wider text-[#FE5B36]">
+              VIKNA<span className="text-[#0F2B5C]">LAND</span>
+            </span>
+          </Link>
+
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(false)}
+            className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 transition-colors cursor-pointer"
+            aria-label="Закрити меню"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Список посилань */}
+        <nav className="flex-1 overflow-y-auto px-5 py-5 space-y-1">
+          <Link
+            href="#view3d"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center justify-between py-2.5 px-3 rounded-lg text-xs font-bold uppercase tracking-wider text-slate-800 hover:bg-slate-100 hover:text-[#FE5B36] transition-colors"
+          >
+            <span>3D Розріз профілю</span>
+            <span className="text-slate-400">→</span>
+          </Link>
+          <Link
+            href="#configurator"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center justify-between py-2.5 px-3 rounded-lg text-xs font-bold uppercase tracking-wider text-slate-800 hover:bg-slate-100 hover:text-[#FE5B36] transition-colors"
+          >
+            <span>Калькулятор онлайн</span>
+            <span className="text-slate-400">→</span>
+          </Link>
+          <Link
+            href="#technologies"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center justify-between py-2.5 px-3 rounded-lg text-xs font-bold uppercase tracking-wider text-slate-800 hover:bg-slate-100 hover:text-[#FE5B36] transition-colors"
+          >
+            <span>Технології виробництва</span>
+            <span className="text-slate-400">→</span>
+          </Link>
+          <Link
+            href="#profiles"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center justify-between py-2.5 px-3 rounded-lg text-xs font-bold uppercase tracking-wider text-slate-800 hover:bg-slate-100 hover:text-[#FE5B36] transition-colors"
+          >
+            <span>Профільні системи</span>
+            <span className="text-slate-400">→</span>
+          </Link>
+          <Link
+            href="#evidnovlennya"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center justify-between py-2.5 px-3 rounded-lg text-xs font-bold uppercase tracking-wider text-[#FE5B36] bg-orange-50 hover:bg-orange-100 transition-colors"
+          >
+            <span>Програма єВідновлення</span>
+            <span className="text-[#FE5B36]">→</span>
+          </Link>
+          <Link
+            href="#advantages"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center justify-between py-2.5 px-3 rounded-lg text-xs font-bold uppercase tracking-wider text-slate-800 hover:bg-slate-100 hover:text-[#FE5B36] transition-colors"
+          >
+            <span>Переваги заводу</span>
+            <span className="text-slate-400">→</span>
+          </Link>
+          <Link
+            href="#portfolio"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center justify-between py-2.5 px-3 rounded-lg text-xs font-bold uppercase tracking-wider text-slate-800 hover:bg-slate-100 hover:text-[#FE5B36] transition-colors"
+          >
+            <span>Реалізовані обʼєкти</span>
+            <span className="text-slate-400">→</span>
+          </Link>
+          <Link
+            href="#blog"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center justify-between py-2.5 px-3 rounded-lg text-xs font-bold uppercase tracking-wider text-slate-800 hover:bg-slate-100 hover:text-[#FE5B36] transition-colors"
+          >
+            <span>Блог: Будова вікон</span>
+            <span className="text-slate-400">→</span>
+          </Link>
+          <Link
+            href="#faq"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center justify-between py-2.5 px-3 rounded-lg text-xs font-bold uppercase tracking-wider text-slate-800 hover:bg-slate-100 hover:text-[#FE5B36] transition-colors"
+          >
+            <span>FAQ запитання</span>
+            <span className="text-slate-400">→</span>
+          </Link>
+        </nav>
+
+        {/* Футер виїзного меню */}
+        <div className="p-5 border-t border-slate-200 bg-slate-50 space-y-3">
+          <button
+            onClick={() => {
+              setMobileMenuOpen(false);
+              setIsModalOpen(true);
+            }}
+            className="w-full py-3 rounded-xl bg-[#FE5B36] hover:bg-[#ff6c47] text-white font-extrabold text-sm shadow-md transition-all cursor-pointer active:scale-98"
+          >
+            Замовити точний замір
+          </button>
+
+          <div className="pt-2 text-center">
+            <span className="text-[11px] text-slate-400 block mb-1">Безкоштовна лінія по Україні:</span>
+            <a
+              href="tel:0800303030"
+              className="text-lg font-black text-slate-900 block font-mono hover:text-[#FE5B36] transition-colors"
+            >
+              0 800 30 30 30
+            </a>
+          </div>
+        </div>
+      </aside>
 
       <OrderModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </>
